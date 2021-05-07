@@ -1,0 +1,145 @@
+<!--
+Susanne Brown
+28-04-2021
+Eindopdracht
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+	<title>Eindopdracht: pakbonpagina bestelling </title>
+	<link rel="stylesheet" href="VisboerStyle.css">
+</head>
+
+<body>
+	<div class="header">
+	  <h1>Visboer H.A. Ring</h1>
+	</div>
+
+	<div class="content">
+		<h3>Bestelling accorderen</h3>
+		<p>
+		Hieronder ziet u alle door u ingevulde gegevens.<br>
+		Klopt er iets niet? Gaat u dan met behulp van de terug-knop van uw browser naar de vorige bladzijdes om uw invoer te veranderen.<br>
+		Druk op de knop hieronder om uw bestelling definitief te maken.
+		</p>
+		<h4><u>Uw bestelling:</u></h4>
+		<table>
+			<thead align="left">
+				<tr>
+					<th>Artikel</th>
+					<th>Gewenst aantal</th>
+					<th>Berekening</th>
+					<th>Prijs</th>
+				</tr>
+			</thead>
+			<tbody id="tabelInhoud"></tbody>
+		</table>
+		<br>
+		<span id="voordeelTekst"></span>
+		<h4><span id="totaalPrijsTekst"></span></h4>
+		<h4><u>Uw adres:</u></h4>
+		<span id="adresKlant"></span>
+		<br>
+		<h4><u>Uw keuze omtrent bezorging:</u></h4>
+		<span id="bezorgTekst"></span>
+		<br><br>
+		<input type = "button" class = "button" value = "Klik hier om uw bestelling definitief te maken" onclick = "geefBevestiging()"> 		
+	</div>
+
+	<div class="footer">
+		<a href="Homepage.html" class="button">Terug naar home</a>
+	</div>
+</body>
+
+<script>
+	//ophalen van aantallenArray van drie bladzijdes terug
+	var aantallenArray = [ ];
+	aantallenArray = JSON.parse(sessionStorage.getItem("bewaarAantal"));
+	aantallenArray = aantallenArray.map(Number); //zet array van strings om in array van getallen
+	console.log(aantallenArray);
+	
+	//ophalen van artikelArray van drie bladzijdes terug
+	var artikelArray = [ ];
+	artikelArray = JSON.parse(sessionStorage.getItem("bewaarArtikel"));
+	console.log(artikelArray);
+	
+	//ophalen van aantallenArrayAangepast van twee bladzijdes terug
+	var aantallenArrayAangepast = [ ];
+	aantallenArrayAangepast = JSON.parse(sessionStorage.getItem("bewaarAantalAangepast"));
+	aantallenArrayAangepast = aantallenArrayAangepast.map(Number); //zet array van strings om in array van getallen
+	console.log(aantallenArrayAangepast);
+
+	//ophalen van totaalprijzenArray van twee bladzijdes terug
+	var totaalprijzenArray = [ ];
+	totaalprijzenArray = JSON.parse(sessionStorage.getItem("bewaarTotaalprijzen"));
+	totaalprijzenArray = totaalprijzenArray.map(Number); //zet array van strings om in array van getallen
+	console.log(totaalprijzenArray);
+	
+	//ophalen van voordeel van twee bladzijdes terug
+	var voordeel = sessionStorage.getItem("bewaarVoordeel");
+	voordeel = parseFloat(voordeel.replace(",",".")); //omzetten naar getal
+	console.log(voordeel);
+		
+	//ophalen van totaalPrijsKlant van twee bladzijdes terug
+	var totaalPrijsKlant = sessionStorage.getItem("bewaarTotaalPrijsKlant");
+	totaalPrijsKlant = parseFloat(totaalPrijsKlant.replace(",",".")); //omzetten naar getal
+	console.log(totaalPrijsKlant);
+	
+	//ophalen van adres van vorige bladzijde
+	var adres = JSON.parse(sessionStorage.getItem("bewaarAdres"));
+	console.log(adres);
+	
+	//ophalen van bezorgKeuze van vorige bladzijde
+	var bezorgKeuze = sessionStorage.getItem("bewaarBezorgKeuze");
+	console.log(bezorgKeuze);
+	
+	//dynamisch aanmaken van de tabelregels die in de HTML-table getoond zullen worden voor de betselling
+	for (i=0; i < artikelArray.length; i++) {
+		if (aantallenArray[i] > 0) {
+			//omwille van leesbaarheid een variabele aangemaakt en de code over 4 rijen uitgesplitst, 
+			//in plaats van het in één zin aan document.getElementById("tabelInhoud").innerHTML toe te voegen
+			var rijInhoud = "<tr><td>" + artikelArray[i].naam + "</td>"
+				+ "<td>" + aantallenArray[i] + " " + artikelArray[i].invoerSoort + "</td>"
+				+ "<td>" + aantallenArrayAangepast[i] + " x € "+ artikelArray[i].prijs + " =</td>"
+				+ "<td><b>€ " + totaalprijzenArray[i].toFixed(2) + "</b></td></tr>";
+			
+			document.getElementById("tabelInhoud").innerHTML += rijInhoud;
+		}
+	}
+	
+	//bepalen welke tekst over voordeel getoond moet worden
+	if (voordeel > 0) {
+		document.getElementById("voordeelTekst").innerHTML = ("Uw voordeel voor 3 of meer stuks van hetzelfde artikel: € " + voordeel.toFixed(2)).fontcolor("green");
+	} else {
+		document.getElementById("voordeelTekst").innerHTML = ("U heeft helaas geen voordeel voor 3 of meer stuks van hetzelfde artikel.").fontcolor("red");
+	}
+	
+	//tonen totaalbedrag bestelling	
+	document.getElementById("totaalPrijsTekst").innerHTML = ("TOTAAL: € " + totaalPrijsKlant.toFixed(2));
+	
+	//tonen adresgegevens klant
+	//omwille van leesbaarheid een variabele aangemaakt en de code over 4 rijen uitgesplitst, 
+	//in plaats van het in één zin aan document.getElementById("adresKlant").innerHTML toe te voegen
+	var adresKlant = adres.fname + " " + adres.lname + "<br>"
+		+ adres.straat + " " + adres.hnum + " " + adres.hnum_add + "<br>"
+		+ adres.pcode + " " + adres.plaats + "<br><br>"
+		+ "Telefoonnummer:" + " " + adres.tnum + "<br>"
+		+ "E-mailadres:" + " " + adres.email;
+	document.getElementById("adresKlant").innerHTML = adresKlant;
+	
+	//tonen bezorgkeuze klant
+	if (bezorgKeuze == '"bezorgen"') {
+		document.getElementById("bezorgTekst").innerHTML = ("Bestelling laten bezorgen op bovenstaand adres.");
+	} else if (bezorgKeuze == '"ophalen"') {
+		document.getElementById("bezorgTekst").innerHTML = ("Bestelling ophalen in de winkel.");
+	}
+	
+	function geefBevestiging() {
+		location.href = "BestellingBevestiging.html";
+	}
+</script>
+
+</html>

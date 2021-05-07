@@ -1,0 +1,144 @@
+<!--
+Susanne Brown
+28-04-2021
+Eindopdracht
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+	<title>Eindopdracht: overzichtspagina bestelling </title>
+	<link rel="stylesheet" href="VisboerStyle.css">
+</head>
+
+<body>
+	<div class="header">
+	  <h1>Visboer H.A. Ring</h1>
+	</div>
+
+	<div class="content">
+		<h3>Controleren van uw bestelling</h3>
+		<p>
+		Hieronder kunt u de door u ingevoerde hoeveelheden controleren.<br>
+		Klopt er iets niet? Gaat u dan met behulp van de terug-knop van uw browser naar de vorige bladzijde om uw invoer te veranderen.<br>
+		De totaalprijs van uw bestelling ziet u onderaan.
+		</p>
+		<u>Uw bestelling:</u>
+		<table>
+			<thead align="left">
+				<tr>
+					<th>Artikel</th>
+					<th>Gewenst aantal</th>
+					<th>Berekening</th>
+					<th>Prijs</th>
+				</tr>
+			</thead>
+			<tbody id="tabelInhoud"></tbody>
+		</table>
+		<br>
+		<span id="voordeelTekst"></span>
+		<br>
+		<h3><span id="totaalPrijsTekst"></span></h3>
+		<br>
+		<input type = "button" class = "button" value = "Klik hier om uw adresgegevens in te voeren" onclick = "geefAdres()"> 
+	</div>
+
+	<div class="footer">
+		<a href="Homepage.html" class="button">Terug naar home</a>
+	</div>
+</body>
+
+<script>
+	//ophalen van aantallenArray van de vorige bladzijde
+	var aantallenArray = [ ];
+	aantallenArray = JSON.parse(sessionStorage.getItem("bewaarAantal"));
+	aantallenArray = aantallenArray.map(Number); //zet array van strings om in array van getallen
+	console.log(aantallenArray);
+	
+	//ophalen van artikelArray van de vorige bladzijde
+	var artikelArray = [ ];
+	artikelArray = JSON.parse(sessionStorage.getItem("bewaarArtikel"));
+	console.log(artikelArray);
+	
+	//ophalen van korting van de vorige bladzijde
+	var korting = sessionStorage.getItem("bewaarKorting");
+	console.log(korting);
+	
+	//aanmaken nieuwe variabelen
+	var aantallenArrayAangepast = [ ];
+	var totaalprijzenArray = [ ];
+	var sum = 0, voordeel = 0, totaalPrijsKlant = 0; 
+		
+	//berekening prijs per artikel
+	for (i=0; i < artikelArray.length; i++) {
+		if (artikelArray[i].invoerSoort == "gram") {
+			//gewenst aantal gram omzetten naar kilo voor prijsberekening
+			aantallenArrayAangepast[i] = aantallenArray[i] / 1000;
+		} else if (artikelArray[i].invoerSoort == "stuks") {
+			aantallenArrayAangepast[i] = aantallenArray[i];
+			voordeelPerDrie(aantallenArray[i]);
+		} else {
+			aantallenArrayAangepast[i] = aantallenArray[i];;
+		}
+		//totaalprijs per artikel = aantal per artikel * stuks-/kiloprijs per artikel
+		totaalprijzenArray[i] = aantallenArrayAangepast[i] * parseFloat(artikelArray[i].prijs.replace(",",".")); //indien komma niet vervangen wordt met punt geeft parseFloat alleen de cijfers voor de komma
+		//prijzen sommeren tot één totaal
+		sum += totaalprijzenArray[i];
+	}
+	
+	//even testen in de console...
+	console.log(aantallenArrayAangepast);
+	console.log(totaalprijzenArray);
+	
+	//bij drie of meer artikelen van hetzelfde soort geldt een korting per artikel van dat soort
+	//er hoeft dus geen sprake te zijn van een veelvoud van drie stuks; slechts een minimum van drie stuks
+	function voordeelPerDrie(aantalStuks) {
+		if (aantalStuks >= 3) {
+			voordeel += aantalStuks * parseFloat(korting.replace(",",".")); //indien komma niet vervangen wordt met punt geeft parseFloat alleen de cijfers voor de komma
+		}
+		return voordeel;
+	}
+	
+	totaalPrijsKlant = sum - voordeel;
+	
+	//even testen in de console...
+	console.log(sum);
+	console.log(voordeel);
+	console.log(totaalPrijsKlant);
+	
+	//dynamisch aanmaken van de tabelregels die in de HTML-table getoond zullen worden
+	for (i=0; i < artikelArray.length; i++) {
+		if (aantallenArray[i] > 0) {
+			//omwille van leesbaarheid een variabele aangemaakt en de code over 4 rijen uitgesplitst, 
+			//in plaats van het in één zin aan document.getElementById("tabelInhoud").innerHTML toe te voegen
+			var rijInhoud = "<tr><td>" + artikelArray[i].naam + "</td>"
+				+ "<td>" + aantallenArray[i] + " " + artikelArray[i].invoerSoort + "</td>"
+				+ "<td>" + aantallenArrayAangepast[i] + " x € "+ artikelArray[i].prijs + " =</td>"
+				+ "<td><b>€ " + totaalprijzenArray[i].toFixed(2) + "</b></td></tr>";
+			
+			document.getElementById("tabelInhoud").innerHTML += rijInhoud;
+		}
+	}
+	
+	//bepalen welke tekst over voordeel getoond moet worden
+	if (voordeel > 0) {
+		document.getElementById("voordeelTekst").innerHTML = ("Uw voordeel voor 3 of meer stuks van hetzelfde artikel: € " + voordeel.toFixed(2)).fontcolor("green");
+	} else {
+		document.getElementById("voordeelTekst").innerHTML = ("U heeft helaas geen voordeel voor 3 of meer stuks van hetzelfde artikel.").fontcolor("red");
+	}
+	
+	//tonen totaalbedrag bestelling	
+	document.getElementById("totaalPrijsTekst").innerHTML = ("TOTAAL: € " + totaalPrijsKlant.toFixed(2));	
+	
+	function geefAdres() {
+		sessionStorage.setItem("bewaarAantalAangepast", JSON.stringify(aantallenArrayAangepast));
+		sessionStorage.setItem("bewaarTotaalprijzen", JSON.stringify(totaalprijzenArray));
+		sessionStorage.setItem("bewaarVoordeel", voordeel);
+		sessionStorage.setItem("bewaarTotaalPrijsKlant", totaalPrijsKlant);
+		location.href = "BestellingBezorging.html";
+	} 
+</script>
+
+</html>

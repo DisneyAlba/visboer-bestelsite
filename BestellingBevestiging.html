@@ -1,0 +1,48 @@
+<!--
+Susanne Brown
+28-04-2021
+Eindopdracht
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+	<title>Eindopdracht: bevestigingsboodschap bestelling  </title>
+	<link rel="stylesheet" href="VisboerStyle.css">
+</head>
+
+<body>
+	<div class="header">
+	  <h1>Visboer H.A. Ring</h1>
+	</div>
+
+	<div class="content">
+		<h3>Gelukt!</h3>
+		<p>
+		Uw bestelling is geplaatst!<br>
+		Wij sturen u een bericht zodra uw bestelling klaar is <span id="bezorgTekst"></span>.<br><br>
+		Met de knop onderaan deze bladzijde kunt u terug naar onze homepage.
+		</p>
+	</div>
+
+	<div class="footer">
+		<a href="Homepage.html" class="button">Terug naar home</a>
+	</div>
+</body>
+
+<script>
+	//ophalen van bezorgKeuze van twee bladzijdes terug
+	var bezorgKeuze = sessionStorage.getItem("bewaarBezorgKeuze");
+	console.log(bezorgKeuze);
+	
+	//bepalen tekst in HTML aan de hand van bezorgkeuze klant
+	if (bezorgKeuze == '"bezorgen"') {
+		document.getElementById("bezorgTekst").innerHTML = ("voor verzending");
+	} else if (bezorgKeuze == '"ophalen"') {
+		document.getElementById("bezorgTekst").innerHTML = ("om opgehaald te worden in de winkel");
+	}
+</script>
+
+</html>

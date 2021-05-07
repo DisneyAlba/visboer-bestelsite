@@ -1,0 +1,97 @@
+<!--
+Susanne Brown
+28-04-2021
+Eindopdracht
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+	<title>Eindopdracht: invoerpagina bezorggegevens  </title>
+	<link rel="stylesheet" href="VisboerStyle.css">
+</head>
+
+<body>
+	<div class="header">
+	  <h1>Visboer H.A. Ring</h1>
+	</div>
+
+	<div class="content">
+		<h3>Bezorggegevens invoeren</h3>
+		<p>
+		Wij verzoeken u hieronder uw gegevens in te vullen.
+		</p>	
+		<!-- alle gegevensvalidatie vindt plaats binnen het formulier, met behulp van 'pattern' en 'required' -->
+		<!-- idealiter zou je bij submit de data ook vergelijken met werkelijk bestaande adressen in Nederland, maar dat hebben we nu niet -->
+		<form id="formulier" method="POST" onsubmit="return naarPakbon(this)"> 						<!-- form.action kan gebruikt worden om data naar een server te sturen, maar dat hebben we nu niet --> 
+			<label for="fname">Voornaam:</label><br>												<!-- het 'for' attribuut moet cooresponderen met het 'id' van de input -->
+			<input type="text" id="fname" name="fname" size="40px" pattern="[A-zÀ-ž][A-zÀ-ž\s-]+" required><br>		<!-- het 'name' attribuut is noodzakelijk als je het formulier op de server wilt opslaan; hier nu overbodig -->
+			<label for="lname">Achternaam:</label><br>
+			<input type="text" id="lname" name="lname" size="40px" pattern="[A-zÀ-ž][A-zÀ-ž\s-]+" required><br>		<!-- pattern: minstens twee karakters, moet met letter beginnen, mag daarna ook een spatie en/of - bevatten -->
+			<label for="straat">Straat:</label><br>
+			<input type="text" id="straat" name="straat" size="40px" pattern="[A-z0-9\s-]{2,}" required><br>	<!-- pattern: minstens twee karakters, mag ook een spatie, - en/of cijfer bevatten) -->
+			<label for="hnum">Huisnummer:</label><br>
+			<input type="number" id="hnum" name="hnum" pattern="[0-9]{1,}" required><br>			<!-- pattern: minstens één cijfer -->
+			<label for="hnum_add">Huisnummer toevoeging:</label><br>
+			<input type="text" id="hnum_add" name="hnum_add"> <br> 									<!-- huisnummertoevoeging is het enige veld wat niet required is -->
+			<label for="pcode">Postcode <i>(format 1234AB)</i>:</label><br>
+			<input type="text" id="pcode" name="pcode" pattern="[0-9]{4}[A-Z]{2}" required><br>		<!-- pattern: postcode moet uit 4 cijfers en 2 hoofdletters bestaan, zonder spatie -->
+			<label for="plaats">Woonplaats:</label><br>
+			<input type="text" id="plaats" name="plaats" size="40px" pattern="[A-z\x27][A-z\s\x27-]+" required><br>	<!-- pattern: minstens twee karakters, moet met letter of ' (= \x27) beginnen (denk aan 's-Gravenhage), mag daarna ook een spatie, ' en/of - bevatten -->
+			<label for="tnum">Telefoonnummer <i>(format 0999999999)</i>:</label><br>
+			<input type="tel" id="tnum" name="tnum" size="40px" pattern="[0][0-9]{9}" required><br> 			<!-- pattern: telefoonnummer moet uit 10 cijfers bestaan, zonder spatie of streeptje, beginnend met 0 -->
+			<label for="email">E-mailadres <i>(format bla@bla.com)</i></label><br>
+			<input type="email" id="email" name="email" size="40px" pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$" required><br>	<!-- pattern: karakters @ karakters . {minimaal 2 letters} -->
+			<br>
+			Wilt u de bestelling laten bezorgen of in de winkel ophalen?
+			<br>
+			<input type="radio" id="bezorgen" name="bezorgoptie" value="bezorgen" required>
+			<label for="bezorgen">Laten bezorgen op bovenstaand adres</label><br>
+			<input type="radio" id="ophalen" name="bezorgoptie" value="ophalen" required>
+			<label for="ophalen">In de winkel ophalen</label><br>
+			<br>
+			<input type="submit" class="button" value="Klik hier om naar de pakbon te gaan">
+		</form>
+	</div>
+
+	<div class="footer">
+		<a href="Homepage.html" class="button">Terug naar home</a>
+	</div>
+</body>
+
+<script>
+	function naarPakbon(form) {
+		var adres = {
+			fname:document.getElementById("fname").value,
+			lname: document.getElementById("lname").value,
+			straat: document.getElementById("straat").value,
+			hnum: document.getElementById("hnum").value,
+			hnum_add: document.getElementById("hnum_add").value,
+			pcode: document.getElementById("pcode").value,
+			plaats: document.getElementById("plaats").value,
+			tnum: document.getElementById("tnum").value,
+			email: document.getElementById("email").value
+		};
+		console.log(adres);
+		
+		var bezorgKeuze;
+		var bezorgen = document.getElementById("bezorgen");
+		var ophalen = document.getElementById("ophalen");
+		if (bezorgen.checked) {
+			bezorgKeuze = bezorgen.value;
+		} else if (ophalen.checked) {
+			bezorgKeuze = ophalen.value;
+		}
+		console.log(bezorgKeuze);
+		
+		sessionStorage.setItem("bewaarAdres", JSON.stringify(adres));
+		sessionStorage.setItem("bewaarBezorgKeuze", JSON.stringify(bezorgKeuze));
+		
+		form.action = "BestellingPakbon.html"; //form's action will be set to BASE_URL/BestellingBevestiging.html
+		return true;			
+	} 
+</script>
+
+</html>

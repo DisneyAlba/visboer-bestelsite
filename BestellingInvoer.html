@@ -1,0 +1,118 @@
+<!--
+Susanne Brown
+28-04-2021
+Eindopdracht
+-->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+	<title>Eindopdracht: invoerpagina bestelling </title>
+	<link rel="stylesheet" href="VisboerStyle.css">
+</head>
+
+<body>
+	<div class="header">
+	  <h1>Visboer H.A. Ring</h1>
+	</div>
+
+	<div class="content">
+		<h3>Invoeren van uw bestelling</h3>
+		<p>
+		Hieronder kunt u de door u gewenste hoeveelheden van de artikelen invoeren.<br>
+		Als u bij stuksartikelen drie of meer van hetzelfde soort bestelt, geldt er een korting van € <span id="korting"></span> per artikel van dat soort.
+		</p>
+		<table>
+		<tbody id="tabelInhoud"></tbody>
+		</table>
+		<br><br>
+		<input type = "button" class = "button" value = "Klik hier om uw totaalbedrag te berekenen" onclick = "maakOverzicht()"> 
+	</div>
+
+	<div class="footer">
+		<a href="Homepage.html" class="button">Terug naar home</a>
+	</div>
+</body>
+
+<script>
+	var artikelArray = [];
+
+	class Artikel {
+		constructor(naam, prijs, prijsSoort, invoerSoort) {
+			this.naam = naam;
+			this.prijs = prijs;
+			this.prijsSoort = prijsSoort; //kilo of stuk
+			this.invoerSoort = invoerSoort; //gram of stuks
+			artikelArray.push(this);
+		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//DIT IS DE ENIGE PLEK WAAR DE EIGENAAR IETS HOEFT TE WIJZIGEN; verder zijn alle bladzijdes dynamisch
+
+	//hier kunnen artikelen worden toegevoegd, verwijderd of aangepast
+	//tussen de haakjes invullen: ("naam zoals op scherm getoond wordt", "prijs zonder euroteken met twee decimalen", "eenheid van prijs dus kilo of stuk", "eenheid van bestelling dus gram of stuks") 
+	var visfriet = new Artikel("Visfriet bak van 250 gram", "3,50", "stuk", "stuks");
+	var viskoekje = new Artikel("Viskoekje", "1,75", "stuk", "stuks");
+	var kibbeling = new Artikel("Kibbeling", "11,00", "kilo", "gram");
+	var zalmsnack = new Artikel("Zalmsnack", "3,95", "stuk", "stuks");
+	var zalmmoot = new Artikel("Verse zalmmoot", "32,50", "kilo", "gram");
+	var dorade = new Artikel("Dorade", "11,43", "kilo", "gram");
+	var saus = new Artikel("Ravigotte-, cocktail-, of knoflooksaus", "0,60", "stuk", "stuks");
+
+	//hier kan het kortingsbedrag per drie stuks aangepast worden
+	var korting = "0,09";
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//even testen in de console...
+	console.log(artikelArray);
+
+	//weergeven korting in tekst op bladzijde
+	document.getElementById("korting").innerHTML = korting;
+
+	//dynamisch aanmaken van de tabelregels die in de HTML-table getoond zullen worden
+	for (i=0; i < artikelArray.length; i++) {
+		//omwille van leesbaarheid een variabele aangemaakt en de code over 4 rijen uitgesplitst, 
+		//in plaats van het in één zin aan document.getElementById("tabelInhoud").innerHTML toe te voegen
+		var rijInhoud = "<tr><td>" + artikelArray[i].naam + "</td>"
+			+ "<td>Prijs per " + artikelArray[i].prijsSoort + ": € " + artikelArray[i].prijs + "</td>"
+			+ "<td>Gewenst aantal <b>" + artikelArray[i].invoerSoort + "</b>:</td>"
+			+ "<td><input type = 'number' id = 'aantalArtikel"+i+"' min = '0.0'></td></tr>";
+		
+		document.getElementById("tabelInhoud").innerHTML += rijInhoud;
+	}
+
+	function maakOverzicht() {
+		var aantallenArray = [ ];
+		var aantal;
+		var doorgang = true;
+		
+		for (i=0; i < artikelArray.length; i++) {
+			//door gebruiker ingevoerde aantallen ophalen en opslaan in aantallenArray
+			aantal = document.getElementById("aantalArtikel"+i).value;
+			aantallenArray.push(aantal);
+			//checken dat er geen negatief getal is ingevuld
+			if (aantallenArray[i] < 0) {
+				alert("U kunt geen negatief getal invullen. Corrigeer aub uw invoer.");
+				doorgang = false;
+			//checken dat er niet een te klein aantal grammen is ingevuld
+			} else if (artikelArray[i].invoerSoort == "gram" && aantallenArray[i] > 0 && aantallenArray[i] < 50) {
+				alert("Wij kunnen helaas niet minder dan 50 gram leveren. Corrigeer aub uw invoer.");
+				doorgang = false;
+			}
+		}
+		//even testen in de console...
+		console.log(aantallenArray);
+		
+		if (doorgang) {  // alleen naar volgende bladzijde gaan als doorgang = true, dus als er geen alert is geweest n.a.v. de vorige for-loop
+			sessionStorage.setItem("bewaarArtikel", JSON.stringify(artikelArray));
+			sessionStorage.setItem("bewaarAantal", JSON.stringify(aantallenArray));
+			sessionStorage.setItem("bewaarKorting", korting);
+			location.href = "BestellingOverzicht.html"; 
+		}
+	}
+</script>
+
+</html>
